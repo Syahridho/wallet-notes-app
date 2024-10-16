@@ -1,6 +1,6 @@
 import InputForm from "@/components/container/InputForm";
 import FormAuth from "@/components/layout/FormAuth";
-import Button from "@/components/UI/Button";
+import Button from "@/components/ui/Button";
 import React from "react";
 
 type PropsTypes = {
