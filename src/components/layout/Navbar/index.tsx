@@ -1,6 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 
-export default function Home() {
+const Navbar = () => {
   const { data }: any = useSession();
   console.log(data);
   return (
@@ -9,10 +9,11 @@ export default function Home() {
         {data ? (
           <button onClick={() => signOut()}>LogOut</button>
         ) : (
-          <button onClick={() => signIn()}>signIn</button>
+          <button onClick={() => signIn()}>Login</button>
         )}
-        <h1>{data && data?.user.fullname}</h1>
       </div>
     </div>
   );
-}
+};
+
+export default Navbar;
