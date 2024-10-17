@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/Input";
-import Label from "@/components/ui/Label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type PropsTypes = {
   type: string;
