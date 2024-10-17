@@ -1,6 +1,6 @@
 import InputForm from "@/components/container/InputForm";
 import FormAuth from "@/components/layout/FormAuth";
-import {Button} from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 
 const Register = () => {
@@ -39,7 +39,6 @@ const Register = () => {
       setError("Email already use!");
     }
   };
-
 
   return (
     <FormAuth

@@ -1,6 +1,6 @@
 import InputForm from "@/components/container/InputForm";
 import FormAuth from "@/components/layout/FormAuth";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";

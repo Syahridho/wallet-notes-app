@@ -1,6 +1,6 @@
 import FormAuth from "@/components/layout/FormAuth";
 import InputForm from "@/components/container/InputForm";
-import {Button} from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 const ForgetPages = () => {
   return (
