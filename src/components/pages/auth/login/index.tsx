@@ -1,19 +1,52 @@
 import InputForm from "@/components/container/InputForm";
 import FormAuth from "@/components/layout/FormAuth";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 
-type PropsTypes = {
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  isLoading: boolean;
-  error: string;
-};
+const Login = () => {
+  const { push, query } = useRouter();
 
-const Login = (props: PropsTypes) => {
-  const { onSubmit, isLoading, error } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const callbackUrl: any = query.callbackUrl || "";
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError("");
+    const target = event.target as HTMLFormElement;
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: target.email.value,
+        password: target.password.value,
+        callbackUrl,
+      });
+
+      if (!res?.error) {
+        push(callbackUrl || "/");
+        setError("");
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+        setError("Email or Password incorret");
+      }
+    } catch (error) {
+      console.log(error);
+      setError("Email or Password incorret");
+      setIsLoading(false);
+    }
+  };
   return (
     <FormAuth
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       title="Login Account"
       subTitle="in here"
       error={error}

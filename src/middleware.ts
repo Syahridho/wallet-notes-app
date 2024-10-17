@@ -8,4 +8,9 @@ export function mainMiddleware(req: NextRequest) {
   return res;
 }
 
-export default withAuth(mainMiddleware, ["/dashboard"]);
+// Halaman yang butuh autentikasi
+const requireAuthPages = ["/dashboard"];
+// Halaman yang hanya bisa diakses jika belum login
+const guestOnlyPages = ["/auth/login", "/auth/register", "/auth/forgot"];
+
+export default withAuth(mainMiddleware, requireAuthPages, guestOnlyPages);

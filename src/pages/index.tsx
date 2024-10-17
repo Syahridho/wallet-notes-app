@@ -1,4 +1,5 @@
 import { signIn, signOut, useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { data }: any = useSession();
@@ -6,10 +7,12 @@ export default function Home() {
   return (
     <div>
       <div>
-        {data ? (
-          <button onClick={() => signOut()}>LogOut</button>
+        {!data ? (
+          <Button onClick={() => signIn()}>signIn</Button>
         ) : (
-          <button onClick={() => signIn()}>signIn</button>
+          <Button variant="destructive" onClick={() => signOut()}>
+            LogOut
+          </Button>
         )}
         <h1>{data && data?.user.fullname}</h1>
       </div>

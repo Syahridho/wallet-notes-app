@@ -1,4 +1,4 @@
-import Input from "@/components/ui/Input";
+import { Input } from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 
 type PropsTypes = {
