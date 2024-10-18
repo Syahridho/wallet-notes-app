@@ -11,7 +11,7 @@ const InputForm = (props: PropsTypes) => {
   const { type, name, title } = props;
   return (
     <div className="flex flex-col gap-1">
-      <Label htmlFor={name} title={title} />
+      <Label htmlFor="name">{title}</Label>
       <Input type={type} name={name} />
     </div>
   );

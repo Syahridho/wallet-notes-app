@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ComboBox from "@/components/container/ComboBox";
 
 const invoices = [
   {
@@ -46,6 +47,9 @@ export function TableDemo() {
             <TableCell>{invoice.paymentMethod}</TableCell>
             <TableCell>{invoice.totalAmount}</TableCell>
             <TableCell>{invoice.date}</TableCell>
+            <TableCell className="text-right">
+              <ComboBox />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

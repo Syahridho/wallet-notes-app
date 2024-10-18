@@ -21,8 +21,17 @@ type InputDialogProps = {
 const InputDialog = (props: InputDialogProps) => {
   const { title, subTitle, onSubmit, children } = props;
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form: any = event.target as HTMLFormElement;
+
+    const data: any = {
+      name: form.name.value,
+      total: form.total.value,
+      date: new Date(),
+    };
+    console.log(data);
+
     onSubmit(event);
   };
 

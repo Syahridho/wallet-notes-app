@@ -2,6 +2,7 @@
   "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-unsafe-function-type": "off",
     "@typescript-eslint/no-explicit-any": "off"
   }
 }

@@ -2,7 +2,9 @@ import app from "./init";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   query,
@@ -108,4 +110,80 @@ export async function signInWithGoogle(userData: any, callback: Function) {
         callback({ status: false, message: "sign in with google failed" });
       });
   }
+}
+
+export async function retrieveData(collectionName: string) {
+  const snapShot = await getDocs(collection(firestore, collectionName));
+  const data = snapShot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return data;
+}
+
+export async function retrieveDataById(collectionName: string, id: string) {
+  const snapShot = await getDoc(doc(firestore, collectionName, id));
+  const data = snapShot.data();
+  return data;
+}
+
+export async function retrieveDataByField(
+  collectionName: string,
+  field: string,
+  value: string
+) {
+  const q = query(
+    collection(firestore, collectionName),
+    where(field, "==", value)
+  );
+
+  const snapshot = await getDocs(q);
+  const data = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return data;
+}
+
+export async function addData(
+  collectionName: string,
+  data: any,
+  callback: Function
+) {
+  await addDoc(collection(firestore, collectionName), data)
+    .then((res) => {
+      callback(true, res);
+    })
+    .catch((error) => {
+      callback(error);
+    });
+}
+
+export async function updateData(
+  collectionName: string,
+  id: string,
+  data: any,
+  callback: Function
+) {
+  const docRef = doc(firestore, collectionName, id);
+  await updateDoc(docRef, data)
+    .then(() => {
+      callback(true);
+    })
+    .catch(() => {
+      callback(false);
+    });
+}
+
+export async function deleteData(
+  collectionName: string,
+  id: string,
+  callback: Function
+) {
+  const docRef = doc(firestore, collectionName, id);
+  await deleteDoc(docRef)
+    .then(() => {
+      callback(true);
+    })
+    .catch(() => {
+      callback(false);
+    });
 }
