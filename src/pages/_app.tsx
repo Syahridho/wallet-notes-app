@@ -2,12 +2,13 @@ import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import type { AppProps } from "next/app";
-import { Poppins } from "@next/font/google";
+// import { Poppins } from "@next/font/google";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
-});
+// const poppins = Poppins({
+//   subsets: ["latin"],
+//   weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
+// });
+// className={poppins.className}
 
 export default function App({
   Component,
@@ -16,7 +17,7 @@ export default function App({
   return (
     <ThemeProvider>
       <SessionProvider session={session}>
-        <main className={poppins.className}>
+        <main>
           <Component {...pageProps} />
         </main>
       </SessionProvider>

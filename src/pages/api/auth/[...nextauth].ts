@@ -1,9 +1,10 @@
-import { signIn, signInWithGoogle } from "@/lib/firebase/services";
 import { NextAuthOptions } from "next-auth";
-import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcrypt";
 import GoogleProvider from "next-auth/providers/google";
+import { signInWithGoogle, signIn } from "@/lib/firebase/services";
+import { compare } from "bcrypt";
+import NextAuth from "next-auth/next";
+import jwt from "jsonwebtoken";
 
 const authOptions: NextAuthOptions = {
   session: {
@@ -19,7 +20,7 @@ const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const { email, password } = credentials as {
+        const { email, password }: any = credentials as {
           email: string;
           password: string;
         };
@@ -42,33 +43,35 @@ const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, account, user }: any) {
-      if (account?.providers === "credentials") {
+      if (account?.provider === "credentials") {
         token.email = user.email;
         token.fullname = user.fullname;
+        token.phone = user.phone;
         token.role = user.role;
+        token.id = user.id;
+        token.image = user.image;
       }
-      if (account?.providers === "google") {
-        const data = {
-          fullname: user.fullname,
+
+      if (account?.provider === "google") {
+        const data: any = {
+          fullname: user.name,
           email: user.email,
           image: user.image,
           type: "google",
         };
-        await signInWithGoogle(
-          data,
-          (result: { status: boolean; message: string; data: any }) => {
-            if (result.status) {
-              token.email = result.data.email;
-              token.fullname = result.data.fullname;
-              token.role = result.data.role;
-              token.image = result.data.image;
-              token.type = result.data.type;
-            }
-          }
-        );
+
+        await signInWithGoogle(data, (data: any) => {
+          token.email = data.email;
+          token.fullname = data.fullname;
+          token.role = data.role;
+          token.image = data.image;
+          token.id = data.id;
+        });
       }
+
       return token;
     },
+
     async session({ session, token }: any) {
       if ("email" in token) {
         session.user.email = token.email;
@@ -76,9 +79,22 @@ const authOptions: NextAuthOptions = {
       if ("fullname" in token) {
         session.user.fullname = token.fullname;
       }
+      if ("phone" in token) {
+        session.user.phone = token.phone;
+      }
       if ("role" in token) {
         session.user.role = token.role;
       }
+      if ("image" in token) {
+        session.user.image = token.image;
+      }
+      if ("id" in token) {
+        session.user.id = token.id;
+      }
+      const accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET || "", {
+        algorithm: "HS256",
+      });
+      session.accessToken = accessToken;
       return session;
     },
   },

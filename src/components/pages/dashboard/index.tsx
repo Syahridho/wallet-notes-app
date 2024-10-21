@@ -8,14 +8,28 @@ import { FaDoorClosed, FaMoneyBill } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { CardDashboard } from "@/components/container/cardDashboard";
+import transactionServices from "@/services/transaction";
 
 const Dashboard = () => {
-  // const { theme, systemTheme } = useTheme();
   const { data }: any = useSession();
-  console.log(data);
   const [mounted, setMounted] = useState(false);
 
+  // const appliedTheme = theme === "system" ? systemTheme : theme;
+  const getAll = async () => {
+    const response = await transactionServices.getProfile();
+    console.log(response.data);
+  };
+
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await getAll();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
     setMounted(true); // Komponen sudah "mounted" di client
   }, []);
 
@@ -23,14 +37,13 @@ const Dashboard = () => {
     return null; // Hindari render di server-side hingga theme siap
   }
 
-  // const appliedTheme = theme === "system" ? systemTheme : theme;
-
   return (
     <div className="max-w-[800px] min-h-screen mx-auto p-6">
       <div className="flex justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            Hi {data ? data?.user.name : data?.user.email}
+            Hi{" "}
+            {data ? data?.user.name || data?.user.fullname : data?.user.email}
           </h1>
           <h1 className="text-base tracking-tight mb-4 text-slate-400">
             Saldo anda

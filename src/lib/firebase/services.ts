@@ -17,7 +17,7 @@ const firestore = getFirestore(app);
 
 export async function signIn(userData: { email: string }) {
   const q = query(
-    collection(firestore, "account"),
+    collection(firestore, "users"),
     where("email", "==", userData.email)
   );
 
@@ -45,7 +45,7 @@ export async function signUp(
   callback: Function
 ) {
   const q = query(
-    collection(firestore, "account"),
+    collection(firestore, "users"),
     where("email", "==", userData.email)
   );
 
@@ -60,7 +60,7 @@ export async function signUp(
   } else {
     userData.password = await bcrypt.hash(userData.password, 10);
     userData.role = "member";
-    await addDoc(collection(firestore, "account"), userData)
+    await addDoc(collection(firestore, "users"), userData)
       .then(() => {
         callback({ status: true, message: "Register Success" });
       })
@@ -73,7 +73,7 @@ export async function signUp(
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export async function signInWithGoogle(userData: any, callback: Function) {
   const q = query(
-    collection(firestore, "account"),
+    collection(firestore, "users"),
     where("email", "==", userData.email)
   );
 
@@ -85,7 +85,7 @@ export async function signInWithGoogle(userData: any, callback: Function) {
 
   if (data.length > 0) {
     userData.role = data[0].role;
-    await updateDoc(doc(firestore, "account", data[0].id), userData)
+    await updateDoc(doc(firestore, "users", data[0].id), userData)
       .then(() => {
         callback({
           status: true,
@@ -98,7 +98,7 @@ export async function signInWithGoogle(userData: any, callback: Function) {
       });
   } else {
     userData.role = "member";
-    await addDoc(collection(firestore, "account"), userData)
+    await addDoc(collection(firestore, "users"), userData)
       .then(() => {
         callback({
           status: true,
