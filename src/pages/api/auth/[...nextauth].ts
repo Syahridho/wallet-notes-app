@@ -58,6 +58,7 @@ const authOptions: NextAuthOptions = {
           email: user.email,
           image: user.image,
           type: "google",
+          balance: 0,
         };
 
         await signInWithGoogle(data, (data: any) => {

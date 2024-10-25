@@ -2,39 +2,110 @@ import { useEffect, useState } from "react";
 // import { useTheme } from "next-themes";
 // import { MagicCard } from "@/components/ui/magic-card";
 import InputDialog from "@/components/container/InputDialog";
-import { TableDemo } from "@/components/container/TableList";
+import { TableList } from "@/components/container/TableList";
 import { SelectDemo } from "@/components/container/Select";
-import { FaDoorClosed, FaMoneyBill } from "react-icons/fa6";
+import {
+  FaDoorClosed,
+  FaMoneyBillTransfer,
+  FaMoneyBillTrendUp,
+} from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { CardDashboard } from "@/components/container/cardDashboard";
 import transactionServices from "@/services/transaction";
+import NumberTicker from "@/components/ui/number-ticker";
 
 const Dashboard = () => {
   const { data }: any = useSession();
   const [mounted, setMounted] = useState(false);
+  const [transaction, setTransaction] = useState<any>();
 
   // const appliedTheme = theme === "system" ? systemTheme : theme;
-  const getAll = async () => {
-    const response = await transactionServices.getProfile();
-    console.log(response.data);
+  const getAllTrasaction = async () => {
+    const response = await transactionServices.getTransaction();
+
+    setTransaction(response.data.data);
+  };
+
+  const countIncome = transaction?.transaction
+    ? transaction.transaction.filter((item) => item.status === true).length
+    : 0;
+
+  const countOutcome = transaction?.transaction
+    ? transaction.transaction.filter((item) => item.status === false).length
+    : 0;
+
+  const totalIncome = transaction?.transaction
+    ? transaction.transaction
+        .filter((item) => item.status === true)
+        .reduce((acc, item) => acc + item.total, 0)
+    : 0;
+
+  const totalOutcome = transaction?.transaction
+    ? transaction.transaction
+        .filter((item) => item.status === false)
+        .reduce((acc, item) => acc + item.total, 0)
+    : 0;
+
+  const handleIncome = async (e: any) => {
+    const currentBalance = transaction?.balance ?? 0;
+
+    const datas = {
+      ...e,
+      status: true,
+      idUser: data.user.id,
+      balanceOld: currentBalance,
+    };
+
+    // console.log(datas);
+
+    const response = await transactionServices.postTransaction(datas);
+
+    if (response.status === 200) {
+      console.log("berhasil");
+      getAllTrasaction();
+    } else {
+      console.log("gagal");
+    }
+  };
+
+  const handleOutcome = async (e: any) => {
+    const currentBalance = transaction?.balance ?? 0;
+
+    const datas = {
+      ...e,
+      status: false,
+      idUser: data.user.id,
+      balanceOld: currentBalance,
+    };
+
+    // console.log(datas);
+
+    const response = await transactionServices.postTransaction(datas);
+
+    if (response.status === 200) {
+      console.log("berhasil");
+      getAllTrasaction();
+    } else {
+      console.log("gagal");
+    }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await getAll();
+        await getAllTrasaction();
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
-    setMounted(true); // Komponen sudah "mounted" di client
+    setMounted(true);
   }, []);
 
   if (!mounted) {
-    return null; // Hindari render di server-side hingga theme siap
+    return null;
   }
 
   return (
@@ -54,14 +125,22 @@ const Dashboard = () => {
         </Button>
       </div>
       <h1 className="text-2xl font-bold tracking-tight mb-6 text-center">
-        Rp. 1.000.000
+        Rp. <NumberTicker value={transaction ? transaction?.balance : 0} />
       </h1>
       <div className="flex justify-between gap-4 mb-6">
-        <CardDashboard Icons={FaMoneyBill} title={"Pemasukan"} transaction={3}>
-          Rp.1.000.000
+        <CardDashboard
+          Icons={FaMoneyBillTrendUp}
+          title={"Pemasukan"}
+          transaction={countIncome}
+        >
+          Rp. <NumberTicker value={transaction ? totalIncome : 0} />
         </CardDashboard>
-        <CardDashboard Icons={FaMoneyBill} title={"Pemasukan"} transaction={3}>
-          Rp.1.000.000
+        <CardDashboard
+          Icons={FaMoneyBillTransfer}
+          title={"Pengeluaran"}
+          transaction={countOutcome}
+        >
+          Rp. <NumberTicker value={transaction ? totalOutcome : 0} />
         </CardDashboard>
       </div>
 
@@ -70,16 +149,16 @@ const Dashboard = () => {
 
         <div className="flex gap-2">
           <InputDialog
-            title="Tambahkan Uang"
+            title="Penambahan Uang"
             subTitle="Silahkan isi untuk menambahkan uang."
-            onSubmit={() => console.log("tes")}
+            onSubmit={handleIncome}
           >
             Pemasukan
           </InputDialog>
           <InputDialog
-            title="Tambahkan Uang"
-            subTitle="Silahkan isi untuk menambahkan uang."
-            onSubmit={() => console.log("tes")}
+            title="Pengurangan Uang"
+            subTitle="Silahkan isi untuk Pengurangan uang."
+            onSubmit={handleOutcome}
           >
             Pengeluaran
           </InputDialog>
@@ -88,7 +167,10 @@ const Dashboard = () => {
       <div>
         <SelectDemo />
       </div>
-      <TableDemo />
+      <TableList
+        transactions={transaction ? transaction.transaction : null}
+        userId={transaction ? transaction.id : 0}
+      />
     </div>
   );
 };

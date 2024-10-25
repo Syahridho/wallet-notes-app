@@ -8,50 +8,35 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import ComboBox from "@/components/container/ComboBox";
+import { convertHour } from "@/utils/convertDate";
+import { convertIDR } from "@/utils/currency";
 
-const invoices = [
-  {
-    paymentMethod: "Bayar Makan",
-    paymentStatus: "income",
-    totalAmount: "40000",
-    date: "19:12 12 Mei 2023",
-  },
-  {
-    paymentMethod: "Bayar Makan",
-    paymentStatus: "income",
-    totalAmount: "40000",
-    date: "19:12 12 Mei 2023",
-  },
-  {
-    paymentMethod: "Bayar Makan",
-    paymentStatus: "income",
-    totalAmount: "40000",
-    date: "19:12 12 Mei 2023",
-  },
-];
-
-export function TableDemo() {
+export function TableList({ transactions, userId }: any) {
   return (
     <Table>
       <TableCaption>2024@wallet notes app</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Method</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead>Nama</TableHead>
+          <TableHead>Jumlah</TableHead>
           <TableHead>Date</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice, index) => (
-          <TableRow key={index}>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell>{invoice.totalAmount}</TableCell>
-            <TableCell>{invoice.date}</TableCell>
-            <TableCell className="text-right">
-              <ComboBox />
-            </TableCell>
-          </TableRow>
-        ))}
+        {transactions ? (
+          transactions.map((transaction) => (
+            <TableRow key={transaction.id}>
+              <TableCell>{transaction.name}</TableCell>
+              <TableCell>{convertIDR(transaction.total)}</TableCell>
+              <TableCell>{convertHour(transaction.date)} WIB</TableCell>
+              <TableCell className="text-right">
+                <ComboBox userId={userId} id={transaction.id} />
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <h1>kosong</h1>
+        )}
       </TableBody>
     </Table>
   );

@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 type InputDialogProps = {
   title: string;
@@ -21,22 +22,29 @@ type InputDialogProps = {
 const InputDialog = (props: InputDialogProps) => {
   const { title, subTitle, onSubmit, children } = props;
 
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
     const form: any = event.target as HTMLFormElement;
 
     const data: any = {
+      id: new Date().getTime(),
       name: form.name.value,
-      total: form.total.value,
-      date: new Date(),
+      total: Number(form.total.value),
+      date: new Date().getTime(),
     };
-    console.log(data);
 
-    onSubmit(event);
+    await onSubmit(data);
+    setOpen(false);
+    form.reset();
+    setIsLoading(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <Button variant="outline" className="text-xs md:text-base">
           {children}
@@ -55,11 +63,11 @@ const InputDialog = (props: InputDialogProps) => {
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="total">Jumlah</Label>
-              <Input id="total" className="col-span-3" />
+              <Input id="total" type="number" className="col-span-3" />
             </div>
           </div>
           <DialogFooter className="mt-2">
-            <Button type="submit">Kirim</Button>
+            <Button type="submit">{isLoading ? "Loading..." : "Kirim"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

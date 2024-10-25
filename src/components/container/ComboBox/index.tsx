@@ -4,17 +4,28 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import transactionServices from "@/services/transaction";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 const ComboBox = (props: any) => {
-  const {} = props;
+  const { userId, id } = props;
 
   const [open, setOpen] = useState(false);
+
+  const handleDelete = async (id: string, userId: any) => {
+    // console.log(id, userId);
+    const result = await transactionServices.deleteTransaction(id, userId);
+
+    if (result.status === 200) {
+      console.log("berhasil bro");
+    } else {
+      console.log("gagal bro");
+    }
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -24,11 +35,15 @@ const ComboBox = (props: any) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem>Update</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleDelete(id, userId)}
+            className="text-red-600"
+          >
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
