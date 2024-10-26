@@ -1,7 +1,7 @@
 import {
-  addDataById,
+  createTransaction,
   deleteTransactionById,
-  retrieveDataById,
+  retrieveDataByIdTransaction,
 } from "@/lib/firebase/services";
 import { verify } from "@/utils/verifyToken";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -10,39 +10,72 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const segments = req.query.api || [];
+  // const segments = req.query.api || [];
 
   if (req.method === "GET") {
     verify(req, res, async (decoded: { id: string }) => {
-      const transaction: any = await retrieveDataById(
-        "transaction",
-        decoded.id
-      );
-      if (transaction) {
-        transaction.id = decoded.id;
-        res
-          .status(200)
-          .json({ statusCode: 200, message: "Success", data: transaction });
-      } else {
-        res.status(404).json({ statusCode: 404, message: "Not Found" });
+      try {
+        // Ambil data transaksi berdasarkan user ID yang didekodekan dari token
+        const transaction = await retrieveDataByIdTransaction(decoded.id);
+
+        if (transaction) {
+          transaction.id = decoded.id;
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success",
+            data: transaction,
+          });
+        } else {
+          res.status(404).json({ statusCode: 404, message: "Not Found" });
+        }
+      } catch (error) {
+        console.error("Error retrieving transaction:", error);
+        res.status(500).json({
+          statusCode: 500,
+          message: "Internal Server Error",
+        });
       }
     });
   } else if (req.method === "POST") {
-    verify(req, res, async () => {
+    verify(req, res, async (decoded: { id: string }) => {
       const { data } = req.body;
+      console.log("Received data:", data);
 
-      await addDataById("transaction", data, (result: any) => {
-        if (result) {
-          res.status(200).json({ statusCode: 200, message: "Success" });
-        } else {
-          res.status(500).json({ statusCode: 500, message: "Faild Push" });
-        }
-      });
+      try {
+        // Format data transaksi
+        const transactionData = {
+          amount: data.amount,
+          type: data.type, // atau sesuai dengan data.type
+          description: data.description,
+        };
+
+        console.log("Formatted transaction data:", transactionData);
+
+        const result = await createTransaction(decoded.id, transactionData);
+
+        return res.status(200).json({
+          statusCode: 200,
+          message: "Success",
+          data: result,
+        });
+      } catch (error: any) {
+        console.error("Error creating transaction:", error);
+        return res.status(400).json({
+          statusCode: 400,
+          message: error.message || "Failed to create transaction",
+        });
+      }
+    });
+  } else if (req.method === "PUT") {
+    verify(req, res, async () => {
+      const [idUser, id]: any = req.query.api || [];
+      console.log("Query parameters:", req.query);
+      console.log("idUser:", idUser);
+      console.log("id:", id);
     });
   } else if (req.method === "DELETE") {
     verify(req, res, async () => {
-      const id = segments[0];
-      const { idUser } = req.query;
+      const [idUser, id]: any = req.query.api || [];
 
       if (!id || !idUser) {
         return res.status(400).json({
@@ -51,13 +84,21 @@ export default async function handler(
         });
       }
 
-      await deleteTransactionById(id, idUser as string, (result: any) => {
-        if (result) {
-          res.status(200).json({ statusCode: 200, message: "Success" });
-        } else {
-          res.status(500).json({ statusCode: 500, message: "Faild Push" });
-        }
-      });
+      try {
+        const result = await deleteTransactionById(idUser, id);
+
+        return res.status(200).json({
+          statusCode: 200,
+          message: "Success",
+          data: result,
+        });
+      } catch (error: any) {
+        console.error("Error creating transaction:", error);
+        return res.status(400).json({
+          statusCode: 400,
+          message: error.message || "Failed to create transaction",
+        });
+      }
     });
   } else {
     res.status(405).json({ message: "Method Not Allowed" });

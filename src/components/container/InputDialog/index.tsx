@@ -17,6 +17,7 @@ type InputDialogProps = {
   subTitle: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void | any;
   children: React.ReactNode;
+  // update?: boolean;
 };
 
 const InputDialog = (props: InputDialogProps) => {
@@ -31,10 +32,8 @@ const InputDialog = (props: InputDialogProps) => {
     const form: any = event.target as HTMLFormElement;
 
     const data: any = {
-      id: new Date().getTime(),
-      name: form.name.value,
-      total: Number(form.total.value),
-      date: new Date().getTime(),
+      description: form.name.value,
+      amount: Number(form.total.value),
     };
 
     await onSubmit(data);

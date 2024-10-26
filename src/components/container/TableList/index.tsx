@@ -11,7 +11,7 @@ import ComboBox from "@/components/container/ComboBox";
 import { convertHour } from "@/utils/convertDate";
 import { convertIDR } from "@/utils/currency";
 
-export function TableList({ transactions, userId }: any) {
+export function TableList({ transactions, idUser, handleDelete }: any) {
   return (
     <Table>
       <TableCaption>2024@wallet notes app</TableCaption>
@@ -24,13 +24,17 @@ export function TableList({ transactions, userId }: any) {
       </TableHeader>
       <TableBody>
         {transactions ? (
-          transactions.map((transaction) => (
+          transactions.reverse().map((transaction) => (
             <TableRow key={transaction.id}>
-              <TableCell>{transaction.name}</TableCell>
-              <TableCell>{convertIDR(transaction.total)}</TableCell>
-              <TableCell>{convertHour(transaction.date)} WIB</TableCell>
+              <TableCell>{transaction.description}</TableCell>
+              <TableCell>{convertIDR(transaction.amount)}</TableCell>
+              <TableCell>{convertHour(transaction.createdAt)} WIB</TableCell>
               <TableCell className="text-right">
-                <ComboBox userId={userId} id={transaction.id} />
+                <ComboBox
+                  handleDelete={handleDelete}
+                  id={transaction.id}
+                  idUser={idUser}
+                />
               </TableCell>
             </TableRow>
           ))

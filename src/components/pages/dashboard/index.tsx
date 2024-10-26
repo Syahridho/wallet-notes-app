@@ -12,8 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { CardDashboard } from "@/components/container/cardDashboard";
-import transactionServices from "@/services/transaction";
 import NumberTicker from "@/components/ui/number-ticker";
+import transactionServices from "@/services/transaction";
 
 const Dashboard = () => {
   const { data }: any = useSession();
@@ -25,39 +25,34 @@ const Dashboard = () => {
     const response = await transactionServices.getTransaction();
 
     setTransaction(response.data.data);
+    console.log(transaction);
   };
 
   const countIncome = transaction?.transaction
-    ? transaction.transaction.filter((item) => item.status === true).length
+    ? transaction.transaction.filter((item) => item.type === "deposit").length
     : 0;
 
   const countOutcome = transaction?.transaction
-    ? transaction.transaction.filter((item) => item.status === false).length
+    ? transaction.transaction.filter((item) => item.type === "withdraw").length
     : 0;
 
   const totalIncome = transaction?.transaction
     ? transaction.transaction
-        .filter((item) => item.status === true)
-        .reduce((acc, item) => acc + item.total, 0)
+        .filter((item) => item.type === "deposit")
+        .reduce((acc, item) => acc + item.amount, 0)
     : 0;
 
   const totalOutcome = transaction?.transaction
     ? transaction.transaction
-        .filter((item) => item.status === false)
-        .reduce((acc, item) => acc + item.total, 0)
+        .filter((item) => item.type === "withdraw")
+        .reduce((acc, item) => acc + item.amount, 0)
     : 0;
 
   const handleIncome = async (e: any) => {
-    const currentBalance = transaction?.balance ?? 0;
-
     const datas = {
       ...e,
-      status: true,
-      idUser: data.user.id,
-      balanceOld: currentBalance,
+      type: "deposit",
     };
-
-    // console.log(datas);
 
     const response = await transactionServices.postTransaction(datas);
 
@@ -70,16 +65,10 @@ const Dashboard = () => {
   };
 
   const handleOutcome = async (e: any) => {
-    const currentBalance = transaction?.balance ?? 0;
-
     const datas = {
       ...e,
-      status: false,
-      idUser: data.user.id,
-      balanceOld: currentBalance,
+      type: "withdraw",
     };
-
-    // console.log(datas);
 
     const response = await transactionServices.postTransaction(datas);
 
@@ -88,6 +77,18 @@ const Dashboard = () => {
       getAllTrasaction();
     } else {
       console.log("gagal");
+    }
+  };
+
+  const handleDelete = async (id: string, idUser: any) => {
+    // console.log(id, idUser);
+    const result = await transactionServices.deleteTransaction(idUser, id);
+
+    if (result.status === 200) {
+      console.log("berhasil bro");
+      getAllTrasaction();
+    } else {
+      console.log("gagal bro");
     }
   };
 
@@ -102,6 +103,7 @@ const Dashboard = () => {
 
     fetchData();
     setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) {
@@ -169,7 +171,8 @@ const Dashboard = () => {
       </div>
       <TableList
         transactions={transaction ? transaction.transaction : null}
-        userId={transaction ? transaction.id : 0}
+        handleDelete={handleDelete}
+        idUser={transaction ? transaction.id : 0}
       />
     </div>
   );
