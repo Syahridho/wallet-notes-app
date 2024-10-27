@@ -9,7 +9,6 @@ export default async function handler(
   if (req.method === "GET") {
     verify(req, res, async (decoded: { id: string }) => {
       const profile: any = await retrieveDataById("users", decoded.id);
-      console.log("Profile:", profile);
       if (profile) {
         profile.id = decoded.id;
         res

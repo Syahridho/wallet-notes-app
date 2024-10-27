@@ -2,6 +2,7 @@ import {
   createTransaction,
   deleteTransactionById,
   retrieveDataByIdTransaction,
+  updateTransaction,
 } from "@/lib/firebase/services";
 import { verify } from "@/utils/verifyToken";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -39,7 +40,6 @@ export default async function handler(
   } else if (req.method === "POST") {
     verify(req, res, async (decoded: { id: string }) => {
       const { data } = req.body;
-      console.log("Received data:", data);
 
       try {
         // Format data transaksi
@@ -48,8 +48,6 @@ export default async function handler(
           type: data.type, // atau sesuai dengan data.type
           description: data.description,
         };
-
-        console.log("Formatted transaction data:", transactionData);
 
         const result = await createTransaction(decoded.id, transactionData);
 
@@ -69,9 +67,30 @@ export default async function handler(
   } else if (req.method === "PUT") {
     verify(req, res, async () => {
       const [idUser, id]: any = req.query.api || [];
-      console.log("Query parameters:", req.query);
-      console.log("idUser:", idUser);
-      console.log("id:", id);
+      const { data } = req.body;
+
+      if (!id || !idUser) {
+        return res.status(400).json({
+          statusCode: 400,
+          message: "Missing required parameters",
+        });
+      }
+
+      try {
+        const result = await updateTransaction(idUser, id, data);
+
+        return res.status(200).json({
+          statusCode: 200,
+          message: "Success update",
+          data: result,
+        });
+      } catch (error: any) {
+        console.error("Error creating transaction:", error);
+        return res.status(400).json({
+          statusCode: 400,
+          message: error.message || "Failed to create transaction",
+        });
+      }
     });
   } else if (req.method === "DELETE") {
     verify(req, res, async () => {

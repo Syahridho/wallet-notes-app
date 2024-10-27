@@ -308,7 +308,6 @@ export async function updateTransaction(
       await transaction.update(walletRef, { balance: updatedBalance });
     });
 
-    console.log("Transaction and wallet balance updated successfully!");
     return {
       success: true,
       message: "Transaction and wallet balance updated successfully!",

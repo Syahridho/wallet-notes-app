@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { data }: any = useSession();
-  console.log(data);
   return (
     <div>
       <div>

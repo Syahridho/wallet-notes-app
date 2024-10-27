@@ -11,7 +11,12 @@ import ComboBox from "@/components/container/ComboBox";
 import { convertHour } from "@/utils/convertDate";
 import { convertIDR } from "@/utils/currency";
 
-export function TableList({ transactions, idUser, handleDelete }: any) {
+export function TableList({
+  transactions,
+  idUser,
+  handleDelete,
+  handleUpdate,
+}: any) {
   return (
     <Table>
       <TableCaption>2024@wallet notes app</TableCaption>
@@ -32,8 +37,10 @@ export function TableList({ transactions, idUser, handleDelete }: any) {
               <TableCell className="text-right">
                 <ComboBox
                   handleDelete={handleDelete}
+                  handleUpdate={handleUpdate}
                   id={transaction.id}
                   idUser={idUser}
+                  data={transaction}
                 />
               </TableCell>
             </TableRow>

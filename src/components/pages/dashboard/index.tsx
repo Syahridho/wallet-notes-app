@@ -23,9 +23,7 @@ const Dashboard = () => {
   // const appliedTheme = theme === "system" ? systemTheme : theme;
   const getAllTrasaction = async () => {
     const response = await transactionServices.getTransaction();
-
     setTransaction(response.data.data);
-    console.log(transaction);
   };
 
   const countIncome = transaction?.transaction
@@ -57,7 +55,6 @@ const Dashboard = () => {
     const response = await transactionServices.postTransaction(datas);
 
     if (response.status === 200) {
-      console.log("berhasil");
       getAllTrasaction();
     } else {
       console.log("gagal");
@@ -73,7 +70,6 @@ const Dashboard = () => {
     const response = await transactionServices.postTransaction(datas);
 
     if (response.status === 200) {
-      console.log("berhasil");
       getAllTrasaction();
     } else {
       console.log("gagal");
@@ -81,14 +77,26 @@ const Dashboard = () => {
   };
 
   const handleDelete = async (id: string, idUser: any) => {
-    // console.log(id, idUser);
     const result = await transactionServices.deleteTransaction(idUser, id);
 
     if (result.status === 200) {
-      console.log("berhasil bro");
       getAllTrasaction();
     } else {
       console.log("gagal bro");
+    }
+  };
+
+  const handleUpdate = async (datas: any) => {
+    const response = await transactionServices.putTransaction(
+      datas,
+      data.user.id,
+      datas.id
+    );
+
+    if (response.status === 200) {
+      getAllTrasaction();
+    } else {
+      console.log("gagal");
     }
   };
 
@@ -172,6 +180,7 @@ const Dashboard = () => {
       <TableList
         transactions={transaction ? transaction.transaction : null}
         handleDelete={handleDelete}
+        handleUpdate={handleUpdate}
         idUser={transaction ? transaction.id : 0}
       />
     </div>
