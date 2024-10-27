@@ -28,7 +28,7 @@ export function TableList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {transactions ? (
+        {transactions?.length > 0 ? (
           transactions.reverse().map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{transaction.description}</TableCell>
@@ -46,7 +46,13 @@ export function TableList({
             </TableRow>
           ))
         ) : (
-          <h1>kosong</h1>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell>
+              <h1 className="text-center text-slate-600 py-4">Data Kosong</h1>
+            </TableCell>
+            <TableCell></TableCell>
+          </TableRow>
         )}
       </TableBody>
     </Table>

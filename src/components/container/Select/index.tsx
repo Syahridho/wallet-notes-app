@@ -9,24 +9,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function SelectDemo() {
-  const [selectedValue, setSelectedValue] = React.useState("");
-
+export function SelectDemo({ setSelect, select }: any) {
   const handleValueChange = (value) => {
-    setSelectedValue(value);
+    setSelect(value);
   };
 
   return (
     <Select onValueChange={handleValueChange}>
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder={selectedValue || "Hari Ini"} />
+        <SelectValue defaultValue={select} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="apple">Hari ini</SelectItem>
-          <SelectItem value="banana">Minggu lalu</SelectItem>
-          <SelectItem value="blueberry">Bulan ini</SelectItem>
-          <SelectItem value="grapes">Bulan lalu</SelectItem>
+          <SelectItem value="today" defaultChecked>
+            Hari ini
+          </SelectItem>
+          <SelectItem value="last_week">Minggu lalu</SelectItem>
+          <SelectItem value="this_month">Bulan ini</SelectItem>
+          <SelectItem value="last_month">Bulan lalu</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

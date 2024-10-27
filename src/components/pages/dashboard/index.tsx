@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-// import { useTheme } from "next-themes";
-// import { MagicCard } from "@/components/ui/magic-card";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import InputDialog from "@/components/container/InputDialog";
+import NumberTicker from "@/components/ui/number-ticker";
 import { TableList } from "@/components/container/TableList";
 import { SelectDemo } from "@/components/container/Select";
 import {
@@ -12,111 +11,139 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { CardDashboard } from "@/components/container/cardDashboard";
-import NumberTicker from "@/components/ui/number-ticker";
 import transactionServices from "@/services/transaction";
+import {
+  getLastMonthDeposits,
+  getThisMonthDeposits,
+  getThisWeekDeposits,
+  getTodayIncomeTransactions,
+} from "@/utils/filterDate";
 
 const Dashboard = () => {
-  const { data }: any = useSession();
+  const { data: sessionData } = useSession();
   const [mounted, setMounted] = useState(false);
-  const [transaction, setTransaction] = useState<any>();
+  const [select, setSelect] = useState("today");
+  const [transaction, setTransaction] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // const appliedTheme = theme === "system" ? systemTheme : theme;
-  const getAllTrasaction = async () => {
-    const response = await transactionServices.getTransaction();
-    setTransaction(response.data.data);
-  };
+  // Semua hooks dipindahkan ke level atas
+  const filteredTransactions = useMemo(() => {
+    if (!transaction?.transaction) return [];
 
-  const countIncome = transaction?.transaction
-    ? transaction.transaction.filter((item) => item.type === "deposit").length
-    : 0;
-
-  const countOutcome = transaction?.transaction
-    ? transaction.transaction.filter((item) => item.type === "withdraw").length
-    : 0;
-
-  const totalIncome = transaction?.transaction
-    ? transaction.transaction
-        .filter((item) => item.type === "deposit")
-        .reduce((acc, item) => acc + item.amount, 0)
-    : 0;
-
-  const totalOutcome = transaction?.transaction
-    ? transaction.transaction
-        .filter((item) => item.type === "withdraw")
-        .reduce((acc, item) => acc + item.amount, 0)
-    : 0;
-
-  const handleIncome = async (e: any) => {
-    const datas = {
-      ...e,
-      type: "deposit",
+    const filters = {
+      today: () => getTodayIncomeTransactions(transaction.transaction),
+      last_week: () => getThisWeekDeposits(transaction.transaction),
+      this_month: () => getThisMonthDeposits(transaction.transaction),
+      last_month: () => getLastMonthDeposits(transaction.transaction),
     };
 
-    const response = await transactionServices.postTransaction(datas);
+    return filters[select]?.() || [];
+  }, [transaction, select]);
 
-    if (response.status === 200) {
-      getAllTrasaction();
-    } else {
-      console.log("gagal");
-    }
-  };
-
-  const handleOutcome = async (e: any) => {
-    const datas = {
-      ...e,
-      type: "withdraw",
-    };
-
-    const response = await transactionServices.postTransaction(datas);
-
-    if (response.status === 200) {
-      getAllTrasaction();
-    } else {
-      console.log("gagal");
-    }
-  };
-
-  const handleDelete = async (id: string, idUser: any) => {
-    const result = await transactionServices.deleteTransaction(idUser, id);
-
-    if (result.status === 200) {
-      getAllTrasaction();
-    } else {
-      console.log("gagal bro");
-    }
-  };
-
-  const handleUpdate = async (datas: any) => {
-    const response = await transactionServices.putTransaction(
-      datas,
-      data.user.id,
-      datas.id
-    );
-
-    if (response.status === 200) {
-      getAllTrasaction();
-    } else {
-      console.log("gagal");
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getAllTrasaction();
-      } catch (error) {
-        console.error(error);
+  const { totalIncome, totalOutcome, todayDepositCount, todayWithdrawCount } =
+    useMemo(() => {
+      if (!transaction?.transaction) {
+        return {
+          totalIncome: 0,
+          totalOutcome: 0,
+          todayDepositCount: 0,
+          todayWithdrawCount: 0,
+        };
       }
-    };
 
-    fetchData();
-    setMounted(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      const deposits = getTodayIncomeTransactions(
+        transaction.transaction,
+        "deposit"
+      );
+      const withdraws = getTodayIncomeTransactions(
+        transaction.transaction,
+        "withdraw"
+      );
+
+      return {
+        totalIncome: transaction.transaction
+          .filter((item) => item.type === "deposit")
+          .reduce((acc, item) => acc + item.amount, 0),
+        totalOutcome: transaction.transaction
+          .filter((item) => item.type === "withdraw")
+          .reduce((acc, item) => acc + item.amount, 0),
+        todayDepositCount: deposits.length,
+        todayWithdrawCount: withdraws.length,
+      };
+    }, [transaction]);
+
+  const getAllTransaction = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await transactionServices.getTransaction();
+      setTransaction(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch transactions:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  const handleTransaction = useCallback(
+    async (e, type) => {
+      try {
+        const response = await transactionServices.postTransaction({
+          ...e,
+          type,
+        });
+
+        if (response.status === 200) {
+          await getAllTransaction();
+        }
+      } catch (error) {
+        console.error(`Failed to ${type} transaction:`, error);
+      }
+    },
+    [getAllTransaction]
+  );
+
+  const handleDelete = useCallback(
+    async (id, idUser) => {
+      try {
+        const result = await transactionServices.deleteTransaction(idUser, id);
+        if (result.status === 200) {
+          await getAllTransaction();
+        }
+      } catch (error) {
+        console.error("Failed to delete transaction:", error);
+      }
+    },
+    [getAllTransaction]
+  );
+
+  const handleUpdate = useCallback(
+    async (datas) => {
+      try {
+        const response = await transactionServices.putTransaction(
+          datas,
+          sessionData?.user?.id,
+          datas.id
+        );
+        if (response.status === 200) {
+          await getAllTransaction();
+        }
+      } catch (error) {
+        console.error("Failed to update transaction:", error);
+      }
+    },
+    [getAllTransaction, sessionData?.user?.id]
+  );
+
+  useEffect(() => {
+    const initializeData = async () => {
+      await getAllTransaction();
+      setMounted(true);
+    };
+
+    initializeData();
+  }, [getAllTransaction]);
+
+  if (!mounted) return null;
 
   return (
     <div className="max-w-[800px] min-h-screen mx-auto p-6">
@@ -124,7 +151,9 @@ const Dashboard = () => {
         <div>
           <h1 className="text-xl font-bold tracking-tight">
             Hi{" "}
-            {data ? data?.user.name || data?.user.fullname : data?.user.email}
+            {sessionData?.user?.name ||
+              sessionData?.user?.fullname ||
+              sessionData?.user?.email}
           </h1>
           <h1 className="text-base tracking-tight mb-4 text-slate-400">
             Saldo anda
@@ -134,23 +163,31 @@ const Dashboard = () => {
           <FaDoorClosed />
         </Button>
       </div>
+
       <h1 className="text-2xl font-bold tracking-tight mb-6 text-center">
-        Rp. <NumberTicker value={transaction ? transaction?.balance : 0} />
+        Rp.{" "}
+        {transaction?.balance !== 0 ? (
+          <NumberTicker value={transaction?.balance || 0} />
+        ) : (
+          0
+        )}
       </h1>
+
       <div className="flex justify-between gap-4 mb-6">
         <CardDashboard
           Icons={FaMoneyBillTrendUp}
-          title={"Pemasukan"}
-          transaction={countIncome}
+          title="Pemasukan"
+          transaction={todayDepositCount}
         >
-          Rp. <NumberTicker value={transaction ? totalIncome : 0} />
+          Rp. {totalIncome > 0 ? <NumberTicker value={totalIncome} /> : 0}
         </CardDashboard>
+
         <CardDashboard
           Icons={FaMoneyBillTransfer}
-          title={"Pengeluaran"}
-          transaction={countOutcome}
+          title="Pengeluaran"
+          transaction={todayWithdrawCount}
         >
-          Rp. <NumberTicker value={transaction ? totalOutcome : 0} />
+          Rp. {totalOutcome > 0 ? <NumberTicker value={totalOutcome} /> : 0}
         </CardDashboard>
       </div>
 
@@ -161,28 +198,34 @@ const Dashboard = () => {
           <InputDialog
             title="Penambahan Uang"
             subTitle="Silahkan isi untuk menambahkan uang."
-            onSubmit={handleIncome}
+            onSubmit={(e) => handleTransaction(e, "deposit")}
           >
             Pemasukan
           </InputDialog>
           <InputDialog
             title="Pengurangan Uang"
             subTitle="Silahkan isi untuk Pengurangan uang."
-            onSubmit={handleOutcome}
+            onSubmit={(e) => handleTransaction(e, "withdraw")}
           >
             Pengeluaran
           </InputDialog>
         </div>
       </div>
-      <div>
-        <SelectDemo />
+
+      <div className="mb-4">
+        <SelectDemo setSelect={setSelect} select={select} />
       </div>
-      <TableList
-        transactions={transaction ? transaction.transaction : null}
-        handleDelete={handleDelete}
-        handleUpdate={handleUpdate}
-        idUser={transaction ? transaction.id : 0}
-      />
+
+      {isLoading ? (
+        <div className="text-center py-4">Loading...</div>
+      ) : (
+        <TableList
+          transactions={filteredTransactions}
+          handleDelete={handleDelete}
+          handleUpdate={handleUpdate}
+          idUser={transaction?.id}
+        />
+      )}
     </div>
   );
 };
