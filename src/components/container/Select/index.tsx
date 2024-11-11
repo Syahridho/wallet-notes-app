@@ -17,7 +17,7 @@ export function SelectDemo({ setSelect, select }: any) {
   return (
     <Select onValueChange={handleValueChange}>
       <SelectTrigger className="w-[180px]">
-        <SelectValue defaultValue={select} />
+        <SelectValue defaultValue={select} placeholder={"Hari ini"} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
