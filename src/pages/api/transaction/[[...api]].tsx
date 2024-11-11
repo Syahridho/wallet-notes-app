@@ -42,7 +42,14 @@ export default async function handler(
       const { data } = req.body;
 
       try {
-        // Format data transaksi
+        if (!decoded?.id) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "User ID not found in token",
+            debug: { decoded }, // Untuk debugging
+          });
+        }
+
         const transactionData = {
           amount: data.amount,
           type: data.type, // atau sesuai dengan data.type

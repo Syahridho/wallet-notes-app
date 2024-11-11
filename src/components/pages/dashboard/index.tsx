@@ -26,7 +26,6 @@ const Dashboard = () => {
   const [transaction, setTransaction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Semua hooks dipindahkan ke level atas
   const filteredTransactions = useMemo(() => {
     if (!transaction?.transaction) return [];
 
@@ -150,10 +149,7 @@ const Dashboard = () => {
       <div className="flex justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            Hi{" "}
-            {sessionData?.user?.name ||
-              sessionData?.user?.fullname ||
-              sessionData?.user?.email}
+            Hi {sessionData?.user?.name || sessionData?.user?.email}
           </h1>
           <h1 className="text-base tracking-tight mb-4 text-slate-400">
             Saldo anda

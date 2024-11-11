@@ -12,7 +12,7 @@ const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
-export const getTodayIncomeTransactions = (transactions, type = "deposit") => {
+export const getTodayIncomeTransactions = (transactions) => {
   // Pastikan transactions adalah array
   if (!Array.isArray(transactions)) {
     return [];
@@ -24,7 +24,6 @@ export const getTodayIncomeTransactions = (transactions, type = "deposit") => {
     const itemDate = new Date(item.createdAt);
 
     return (
-      item.type === type &&
       itemDate.getDate() === today.getDate() &&
       itemDate.getMonth() === today.getMonth() &&
       itemDate.getFullYear() === today.getFullYear()

@@ -196,6 +196,7 @@ export async function addData(
 
 export async function createTransaction(userId: string, transactionData: any) {
   try {
+    console.log(userId, transactionData);
     if (!userId || !transactionData.amount) {
       throw new Error("Invalid transaction data");
     }
