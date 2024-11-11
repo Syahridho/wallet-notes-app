@@ -12,8 +12,7 @@ const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
-export const getTodayIncomeTransactions = (transactions) => {
-  // Pastikan transactions adalah array
+export const getTodayIncomeTransactions = (transactions, type?) => {
   if (!Array.isArray(transactions)) {
     return [];
   }
@@ -23,14 +22,15 @@ export const getTodayIncomeTransactions = (transactions) => {
   return transactions.filter((item) => {
     const itemDate = new Date(item.createdAt);
 
-    return (
+    const typeMatches = type ? item.type === type : true;
+    const dateMatches =
       itemDate.getDate() === today.getDate() &&
       itemDate.getMonth() === today.getMonth() &&
-      itemDate.getFullYear() === today.getFullYear()
-    );
+      itemDate.getFullYear() === today.getFullYear();
+
+    return typeMatches && dateMatches;
   });
 };
-
 // Arrow function untuk filter minggu ini
 export const getThisWeekDeposits = (transactions) =>
   transactions.filter((item) => {
