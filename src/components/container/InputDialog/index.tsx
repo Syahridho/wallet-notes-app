@@ -58,11 +58,11 @@ const InputDialog = (props: InputDialogProps) => {
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-3">
               <Label htmlFor="name">Nama</Label>
-              <Input id="name" className="col-span-3" />
+              <Input id="name" className="col-span-3" required />
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="total">Jumlah</Label>
-              <Input id="total" type="number" className="col-span-3" />
+              <Input id="total" type="number" className="col-span-3" required />
             </div>
           </div>
           <DialogFooter className="mt-2">
