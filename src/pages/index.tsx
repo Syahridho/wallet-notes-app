@@ -4,7 +4,10 @@ import Dashboard from "@/components/pages/dashboard";
 import { FaCircleNotch } from "react-icons/fa6";
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() as {
+    data: any;
+    status: any;
+  };
 
   if (status === "loading") {
     return (
