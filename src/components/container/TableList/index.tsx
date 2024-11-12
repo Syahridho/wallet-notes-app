@@ -19,6 +19,7 @@ export function TableList({
   handleDelete,
   handleUpdate,
 }: any) {
+  console.log(transactions);
   return (
     <Table>
       <TableCaption>2024@wallet notes app</TableCaption>
@@ -32,29 +33,32 @@ export function TableList({
       </TableHeader>
       <TableBody>
         {transactions?.length > 0 ? (
-          transactions.reverse().map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>
-                {transaction.type == "deposit" ? (
-                  <FaArrowTrendUp className="text-green-500" />
-                ) : (
-                  <FaArrowTrendDown className="text-red-500" />
-                )}
-              </TableCell>
-              <TableCell>{transaction.description}</TableCell>
-              <TableCell>{convertIDR(transaction.amount)}</TableCell>
-              <TableCell>{convertHour(transaction.createdAt)} WIB</TableCell>
-              <TableCell className="text-right">
-                <ComboBox
-                  handleDelete={handleDelete}
-                  handleUpdate={handleUpdate}
-                  id={transaction.id}
-                  idUser={idUser}
-                  data={transaction}
-                />
-              </TableCell>
-            </TableRow>
-          ))
+          transactions
+            .slice()
+            .reverse()
+            .map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>
+                  {transaction.type == "deposit" ? (
+                    <FaArrowTrendUp className="text-green-500" />
+                  ) : (
+                    <FaArrowTrendDown className="text-red-500" />
+                  )}
+                </TableCell>
+                <TableCell>{transaction.description}</TableCell>
+                <TableCell>{convertIDR(transaction.amount)}</TableCell>
+                <TableCell>{convertHour(transaction.createdAt)} WIB</TableCell>
+                <TableCell className="text-right">
+                  <ComboBox
+                    handleDelete={handleDelete}
+                    handleUpdate={handleUpdate}
+                    id={transaction.id}
+                    idUser={idUser}
+                    data={transaction}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
         ) : (
           <TableRow>
             <TableCell></TableCell>

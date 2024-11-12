@@ -31,7 +31,7 @@ const Dashboard = () => {
 
     const filters = {
       today: () => getTodayIncomeTransactions(transaction.transaction),
-      last_week: () => getThisWeekDeposits(transaction.transaction),
+      this_week: () => getThisWeekDeposits(transaction.transaction),
       this_month: () => getThisMonthDeposits(transaction.transaction),
       last_month: () => getLastMonthDeposits(transaction.transaction),
     };

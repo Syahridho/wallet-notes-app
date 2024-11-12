@@ -24,7 +24,7 @@ export function SelectDemo({ setSelect, select }: any) {
           <SelectItem value="today" defaultChecked>
             Hari ini
           </SelectItem>
-          <SelectItem value="last_week">Minggu lalu</SelectItem>
+          <SelectItem value="this_week">Minggu ini</SelectItem>
           <SelectItem value="this_month">Bulan ini</SelectItem>
           <SelectItem value="last_month">Bulan lalu</SelectItem>
         </SelectGroup>
