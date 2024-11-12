@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
-import { CardDashboard } from "@/components/container/cardDashboard";
+import { CardDashboard } from "@/components/container/CardDashboard";
 import transactionServices from "@/services/transaction";
 import {
   getLastMonthDeposits,

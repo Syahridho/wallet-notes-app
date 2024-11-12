@@ -19,7 +19,6 @@ export function TableList({
   handleDelete,
   handleUpdate,
 }: any) {
-  console.log(transactions);
   return (
     <Table>
       <TableCaption>2024@wallet notes app</TableCaption>

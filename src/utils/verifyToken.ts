@@ -14,7 +14,6 @@ export const verify = (
       process.env.NEXTAUTH_SECRET || "",
       async (error: any, decoded: any) => {
         if (decoded) {
-          console.log("Decoded token:", decoded);
           callback(decoded);
         } else {
           res.status(403).json({ message: "access denied 1 " });
