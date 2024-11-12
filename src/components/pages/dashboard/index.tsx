@@ -20,7 +20,9 @@ import {
 import { CardDashboard } from "@/components/container/CardDashboard";
 
 const Dashboard = () => {
-  const { data: sessionData } = useSession();
+  const { data: sessionData } = useSession() as {
+    data: any & { user: any };
+  };
   const [mounted, setMounted] = useState(false);
   const [select, setSelect] = useState("today");
   const [transaction, setTransaction] = useState<any>(null);
