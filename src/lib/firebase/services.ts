@@ -84,10 +84,13 @@ export async function signInWithGoogle(userData: any, callback: Function) {
     id: doc.id,
     ...doc.data(),
   }));
+  console.log(data);
+  console.log(data[0].id);
 
   if (data.length > 0) {
     userData.role = data[0].role;
     userData.balance = 0;
+    userData.id = data[0].id; // Tambahkan ID dokumen
     await updateDoc(doc(firestore, "users", data[0].id), userData)
       .then(() => {
         callback({
@@ -101,7 +104,9 @@ export async function signInWithGoogle(userData: any, callback: Function) {
       });
   } else {
     userData.role = "member";
-    await addDoc(collection(firestore, "users"), userData)
+    const docRef: any = await addDoc(collection(firestore, "users"), userData);
+    userData.id = docRef.id; // Simpan ID dokumen yang dihasilkan
+    await docRef
       .then(() => {
         callback({
           status: true,

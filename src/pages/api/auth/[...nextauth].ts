@@ -50,9 +50,7 @@ const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.id = user.id;
         token.image = user.image;
-      }
-
-      if (account?.provider === "google") {
+      } else if (account?.provider === "google") {
         const data: any = {
           id: user.id,
           fullname: user.name,
@@ -63,11 +61,11 @@ const authOptions: NextAuthOptions = {
         };
 
         await signInWithGoogle(data, (data: any) => {
+          token.id = data.id;
           token.email = data.email;
           token.fullname = data.fullname;
           token.role = data.role;
           token.image = data.image;
-          token.id = data.id;
         });
       }
 
@@ -75,6 +73,8 @@ const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }: any) {
+      console.log("Session", session);
+      console.log("Token", token);
       if ("email" in token) {
         session.user.email = token.email;
       }
