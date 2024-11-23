@@ -85,7 +85,7 @@ export async function signInWithGoogle(userData: any, callback: Function) {
     ...doc.data(),
   }));
   console.log(data);
-  console.log(data[0].id);
+  console.log();
 
   if (data.length > 0) {
     userData.role = data[0].role;
@@ -96,7 +96,7 @@ export async function signInWithGoogle(userData: any, callback: Function) {
         callback({
           status: true,
           message: "sign in with google success",
-          data: userData,
+          data: { userData },
         });
       })
       .catch(() => {

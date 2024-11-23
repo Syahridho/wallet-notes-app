@@ -18,6 +18,7 @@ import {
   getTodayIncomeTransactions,
 } from "@/utils/filterDate";
 import { CardDashboard } from "@/components/container/CardDashboard";
+import { Chart } from "@/components/container/Chart";
 
 const Dashboard = () => {
   const { data: sessionData } = useSession() as {
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const [select, setSelect] = useState("today");
   const [transaction, setTransaction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [list, setList] = useState(false);
 
   const filteredTransactions = useMemo(() => {
     if (!transaction?.transaction) return [];
@@ -210,19 +212,37 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <SelectDemo setSelect={setSelect} select={select} />
+        <div className="p-2 flex gap-2 shadow-sm w-fit rounded-md">
+          <Button
+            variant={list ? "secondary" : "ghost"}
+            onClick={() => setList(true)}
+          >
+            List
+          </Button>
+          <Button
+            variant={list ? "ghost" : "secondary"}
+            onClick={() => setList(false)}
+          >
+            Grafik
+          </Button>
+        </div>
       </div>
 
-      {isLoading ? (
-        <div className="text-center py-4">Loading...</div>
+      {list ? (
+        isLoading ? (
+          <div className="text-center py-4">Loading...</div>
+        ) : (
+          <TableList
+            transactions={filteredTransactions}
+            handleDelete={handleDelete}
+            handleUpdate={handleUpdate}
+            idUser={transaction?.id}
+          />
+        )
       ) : (
-        <TableList
-          transactions={filteredTransactions}
-          handleDelete={handleDelete}
-          handleUpdate={handleUpdate}
-          idUser={transaction?.id}
-        />
+        <Chart />
       )}
     </div>
   );
