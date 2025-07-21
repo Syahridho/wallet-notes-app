@@ -30,7 +30,7 @@ export default function withAuth(
 
     // Cek apakah halaman ini hanya untuk guest (belum login)
     if (guestOnly.includes(pathname) && token) {
-      return NextResponse.redirect(new URL("/dashboard", req.url)); // Redirect ke dashboard jika sudah login
+      return NextResponse.redirect(new URL("/", req.url)); // Redirect ke / jika sudah login
     }
 
     return middleware(req, next);
