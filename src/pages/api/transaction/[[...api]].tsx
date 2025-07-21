@@ -39,7 +39,6 @@ export default async function handler(
     });
   } else if (req.method === "POST") {
     verify(req, res, async (decoded: { id: string }) => {
-      console.log("Decoded token:", decoded);
       const { data } = req.body;
 
       try {

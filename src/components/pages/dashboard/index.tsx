@@ -148,8 +148,6 @@ const Dashboard = () => {
 
   if (!mounted) return null;
 
-  console.log(filteredTransactions);
-
   return (
     <div className="max-w-[800px] min-h-screen mx-auto p-6">
       <div className="flex justify-between">
