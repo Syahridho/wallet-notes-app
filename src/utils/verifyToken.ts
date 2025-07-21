@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { NextApiRequest, NextApiResponse } from "next";
 
-// Cek struktur decoded token
 export const verify = (
   req: NextApiRequest,
   res: NextApiResponse,

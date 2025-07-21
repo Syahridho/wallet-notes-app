@@ -24,7 +24,9 @@ const authOptions: NextAuthOptions = {
           email: string;
           password: string;
         };
+
         const user: any = await signIn({ email });
+
         if (user) {
           const passwordConfirm = await compare(password, user.password);
           if (passwordConfirm) {
@@ -51,52 +53,44 @@ const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.image = user.image;
       } else if (account?.provider === "google") {
-        const data: any = {
-          id: user.id,
-          fullname: user.name,
-          email: user.email,
-          image: user.image,
-          type: "google",
-          balance: 0,
-        };
+        let dbUser: any = null;
+        await signInWithGoogle(
+          {
+            id: user.id,
+            fullname: user.name,
+            email: user.email,
+            image: user.image,
+            type: "google",
+            balance: 0,
+          },
+          (result: any) => {
+            dbUser = result.data.userData;
+          }
+        );
 
-        await signInWithGoogle(data, (data: any) => {
-          token.id = data.id;
-          token.email = data.email;
-          token.fullname = data.fullname;
-          token.role = data.role;
-          token.image = data.image;
-        });
+        token.id = dbUser.id;
+        token.email = dbUser.email;
+        token.fullname = dbUser.fullname;
+        token.role = dbUser.role;
+        token.image = dbUser.image;
+        token.phone = dbUser.phone || null; // Tambahkan ini jika perlu
       }
 
       return token;
     },
 
     async session({ session, token }: any) {
-      console.log("Session", session);
-      console.log("Token", token);
-      if ("email" in token) {
-        session.user.email = token.email;
-      }
-      if ("fullname" in token) {
-        session.user.fullname = token.fullname;
-      }
-      if ("phone" in token) {
-        session.user.phone = token.phone;
-      }
-      if ("role" in token) {
-        session.user.role = token.role;
-      }
-      if ("image" in token) {
-        session.user.image = token.image;
-      }
-      if ("id" in token) {
-        session.user.id = token.id;
-      }
-      const accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET || "", {
+      session.user.email = token.email;
+      session.user.fullname = token.fullname;
+      session.user.phone = token.phone;
+      session.user.role = token.role;
+      session.user.image = token.image;
+      session.user.id = token.id;
+
+      session.accessToken = jwt.sign(token, process.env.NEXTAUTH_SECRET || "", {
         algorithm: "HS256",
       });
-      session.accessToken = accessToken;
+
       return session;
     },
   },

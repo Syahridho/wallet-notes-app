@@ -39,6 +39,7 @@ export default async function handler(
     });
   } else if (req.method === "POST") {
     verify(req, res, async (decoded: { id: string }) => {
+      console.log("Decoded token:", decoded);
       const { data } = req.body;
 
       try {
@@ -46,13 +47,13 @@ export default async function handler(
           return res.status(400).json({
             statusCode: 400,
             message: "User ID not found in token",
-            debug: { decoded }, // Untuk debugging
+            debug: { decoded },
           });
         }
 
         const transactionData = {
           amount: data.amount,
-          type: data.type, // atau sesuai dengan data.type
+          type: data.type,
           description: data.description,
         };
 

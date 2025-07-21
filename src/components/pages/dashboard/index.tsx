@@ -18,7 +18,7 @@ import {
   getTodayIncomeTransactions,
 } from "@/utils/filterDate";
 import { CardDashboard } from "@/components/container/CardDashboard";
-import { Chart } from "@/components/container/Chart";
+import { ChartAreaLegend } from "@/components/container/Chart";
 
 const Dashboard = () => {
   const { data: sessionData } = useSession() as {
@@ -148,6 +148,8 @@ const Dashboard = () => {
 
   if (!mounted) return null;
 
+  console.log(filteredTransactions);
+
   return (
     <div className="max-w-[800px] min-h-screen mx-auto p-6">
       <div className="flex justify-between">
@@ -242,7 +244,7 @@ const Dashboard = () => {
           />
         )
       ) : (
-        <Chart />
+        <ChartAreaLegend transactions={filteredTransactions} />
       )}
     </div>
   );

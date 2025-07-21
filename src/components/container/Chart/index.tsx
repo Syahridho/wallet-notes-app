@@ -1,7 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -14,62 +13,138 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+import { convertIDR } from "@/utils/currency";
+
+// Month names
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
+  deposit: {
+    label: "Deposit",
     color: "hsl(var(--chart-2))",
+  },
+  withdraw: {
+    label: "Withdraw",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 
-export function Chart() {
+// Define the ChartItem type
+type ChartItem = {
+  month: string;
+  deposit: number;
+  withdraw: number;
+};
+
+export function ChartAreaLegend({ transactions }: { transactions: any[] }) {
+  // Group transactions by month
+  const grouped: Record<string, ChartItem> = transactions.reduce((acc, tx) => {
+    const date = new Date(tx.createdAt);
+    const month = monthNames[date.getMonth()];
+
+    if (!acc[month]) {
+      acc[month] = { month, deposit: 0, withdraw: 0 };
+    }
+
+    if (tx.type === "deposit") {
+      acc[month].deposit += tx.amount;
+    } else if (tx.type === "withdraw") {
+      acc[month].withdraw += tx.amount;
+    }
+
+    return acc;
+  }, {} as Record<string, ChartItem>);
+
+  // Now TypeScript knows each item has a `month`
+  const chartData: ChartItem[] = Object.values(grouped).sort(
+    (a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month)
+  );
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Grafik</CardTitle>
+        <CardDescription>
+          Grafik deposit dan withdraw dalam beberapa bulan terakhir.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <AreaChart data={chartData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
-              tickMargin={10}
               axisLine={false}
+              tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  formatter={(value, name, item) => (
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2.5 h-2.5 rounded"
+                        style={{
+                          backgroundColor: item.color || item.payload.fill,
+                        }}
+                      />
+                      <span>
+                        {name}: {convertIDR(value)}
+                      </span>
+                    </div>
+                  )}
+                />
+              }
             />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-          </BarChart>
+            <Area
+              dataKey="deposit"
+              type="natural"
+              fill="var(--color-deposit)"
+              fillOpacity={0.4}
+              stroke="var(--color-deposit)"
+              stackId="a"
+            />
+            <Area
+              dataKey="withdraw"
+              type="natural"
+              fill="var(--color-withdraw)"
+              fillOpacity={0.4}
+              stroke="var(--color-withdraw)"
+              stackId="a"
+            />
+            <ChartLegend content={<ChartLegendContent />} />
+          </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="text-muted-foreground flex items-center gap-2 leading-none">
+              {chartData[0]?.month} - {chartData.at(-1)?.month} 2025
+            </div>
+          </div>
         </div>
       </CardFooter>
     </Card>
