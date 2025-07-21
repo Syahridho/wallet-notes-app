@@ -50,24 +50,9 @@ export default function Home() {
           mudah.
         </p>
 
-        {!session?.user ? (
-          <Button onClick={() => signIn()} size="lg">
-            Masuk
-          </Button>
-        ) : (
-          <div className="space-y-2">
-            <p className="text-base text-foreground">
-              Selamat datang kembali,{" "}
-              <span className="font-medium">{session.user.name}</span>!
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => (window.location.href = "/dashboard")}
-            >
-              Lanjut ke Dashboard
-            </Button>
-          </div>
-        )}
+        <Button onClick={() => signIn()} size="lg">
+          Masuk
+        </Button>
       </main>
     </>
   );
